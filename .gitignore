@@ -1,0 +1,7 @@
+*
+
+# allow
+!*.tf
+!.gitignore
+!.github/
+!.github/**
