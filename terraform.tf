@@ -12,7 +12,6 @@ backend "s3" {
     bucket = "ianb-terraform-state-bucket"
     key    = "ianb/state"
     region = "eu-west-2"
-    profile = "ianb-terraform-user"
   }
 }
 

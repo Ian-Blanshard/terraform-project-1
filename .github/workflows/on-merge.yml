@@ -1,0 +1,30 @@
+name: run terraform apply on merge
+run-name: ${{ github.head_ref }} merge by ${{ github.actor }}
+
+on:
+  push:
+    branches: ['main']
+
+jobs:
+  Terraform-apply:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::664047078509:role/ianb-github-actions-role
+          aws-region: eu-west-2
+          audience: sts.amazonaws.com
+      
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+
+
