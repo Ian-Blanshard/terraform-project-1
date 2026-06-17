@@ -3,7 +3,7 @@ run-name: ${{ github.head_ref }} pull request by ${{ github.actor }}
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize]
 
 permissions:
   pull-requests: write
