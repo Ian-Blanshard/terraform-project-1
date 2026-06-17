@@ -31,3 +31,12 @@ resource "aws_s3_bucket" "ianb-terraform-bucket" {
   }
 }
 
+resource "aws_ecr_repository" "ianb-task-app-repo" {
+  name                 = "ianb-task-app-repo"
+  image_tag_mutability = "MUTABLE"
+
+  tags = {
+    Name = "ianb"
+  }
+}
+
