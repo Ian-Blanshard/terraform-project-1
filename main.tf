@@ -68,7 +68,7 @@ resource "aws_iam_role_policy_attachment" "attach_web" {
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
 resource "aws_iam_role_policy_attachment" "attach_docker" {
-  role       = aws_iam_role.role.name
+  role       = aws_iam_role.example_app_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker"
 }
 resource "aws_iam_role_policy_attachment" "attach_worker" {
