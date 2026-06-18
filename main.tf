@@ -42,7 +42,7 @@ resource "aws_elastic_beanstalk_application" "example_app" {
 }
 
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
-  name                = "ianb-task-listing-app-environment-v3"
+  name                = "ianb-task-listing-app-environment-v4"
   application         = aws_elastic_beanstalk_application.example_app.name
   solution_stack_name = "64bit Amazon Linux 2023 v4.13.2 running Docker"
   setting {
@@ -78,7 +78,7 @@ resource "aws_iam_role" "example_app_ec2_role" {
         {
             Action = "sts:AssumeRole"
             Principal = {
-               Service = "ec2.amazonaws.com"
+              Service = "ec2.amazonaws.com"
             }
             Effect = "Allow"
             Sid = ""
@@ -120,20 +120,23 @@ resource "aws_iam_role" "beanstalk_service_role" {
       }
     }]
   })
-  inline_policy {
-    name = "allow-beanstalk-platform-assets"
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [{
-        Effect   = "Allow"
-        Action   = ["s3:GetObject", "s3:ListBucket", "s3:GetBucketLocation"]
-        Resource = [
-          "arn:aws:s3:::elasticbeanstalk-platform-assets-eu-west-2",
-          "arn:aws:s3:::elasticbeanstalk-platform-assets-eu-west-2/*"
-        ]
-      }]
-    })
-  }
+}
+
+resource "aws_iam_role_policy" "beanstalk_s3_assets_policy" {
+  name = "allow-beanstalk-platform-assets"
+  role = aws_iam_role.beanstalk_service_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["s3:GetObject", "s3:ListBucket", "s3:GetBucketLocation"]
+      Resource = [
+        "arn:aws:s3:::elasticbeanstalk-platform-assets-eu-west-2",
+        "arn:aws:s3:::elasticbeanstalk-platform-assets-eu-west-2/*"
+      ]
+    }]
+  })
 }
 
 
@@ -144,5 +147,5 @@ resource "aws_iam_role_policy_attachment" "beanstalk_enhanced_health" {
 
 resource "aws_iam_role_policy_attachment" "beanstalk_managed_service" {
   role       = aws_iam_role.beanstalk_service_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkServiceRolePolicy"
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
 }
