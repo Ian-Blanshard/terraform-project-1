@@ -4,12 +4,10 @@ provider "aws" {
 
 data "aws_ami" "ubuntu" {
   most_recent = true
-
   filter {
     name   = "name"
     values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
   }
-
   owners = ["099720109477"] # Canonical
 }
 
@@ -17,8 +15,6 @@ resource "aws_instance" "app_server_ianb" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.micro"
   vpc_security_group_ids = ["sg-05985aecc5497ed1a"]
-
-
   tags = {
     Name = "ianb_learn-terraform"
   }
@@ -48,22 +44,21 @@ resource "aws_elastic_beanstalk_application" "example_app" {
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
   name                = "ianb-task-listing-app-environment"
   application         = aws_elastic_beanstalk_application.example_app.name
-
-  # This page lists the supported platforms
-  # we can use for this argument:
-  # https://docs.aws.amazon.com/elasticbeanstalk/latest/platforms/platforms-supported.html#platforms-supported.docker
   solution_stack_name = "64bit Amazon Linux 2023 v4.13.2 running Docker"
-
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
     value     = aws_iam_instance_profile.example_app_ec2_instance_profile.name
   }
-
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name = "EC2KeyName"
     value = "ianb-terraform-ec2"
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "ServiceRole"
+    value     = aws_iam_role.beanstalk_service_role.name
   }
 }
 
@@ -105,4 +100,34 @@ resource "aws_iam_role_policy_attachment" "multicontainer_docker_attach" {
 resource "aws_iam_role_policy_attachment" "worker_tier_attach" {
   role       = aws_iam_role.example_app_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier"
+}
+
+resource "aws_iam_role" "beanstalk_service_role" {
+  name = "aws-elasticbeanstalk-service-role-ianb"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "elasticbeanstalk.amazonaws.com"
+      }
+      Condition = {
+        StringEquals = {
+          "sts:ExternalId" = "elasticbeanstalk"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "beanstalk_enhanced_health" {
+  role       = aws_iam_role.beanstalk_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
+}
+
+resource "aws_iam_role_policy_attachment" "beanstalk_managed_service" {
+  role       = aws_iam_role.beanstalk_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkServiceRolePolicy"
 }
