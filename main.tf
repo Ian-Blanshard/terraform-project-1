@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_ecr_repository" "ianb_task_app_repo" {
-  name                 = "ianb-task-app-repo"
+  name                 = "ianb-task-app-repo-v2"
   image_tag_mutability = "MUTABLE"
   tags = {
     Name = "ianb"
@@ -56,22 +56,17 @@ resource "aws_iam_role" "example_app_ec2_role" {
 }
 
 
-resource "aws_iam_role_policy_attachment" "web_tier_attach" {
+
+resource "aws_iam_role_policy_attachment" "attach_web" {
   role       = aws_iam_role.example_app_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
 
-resource "aws_iam_role_policy_attachment" "multicontainer_docker_attach" {
-  role       = aws_iam_role.example_app_ec2_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker"
-}
-
-resource "aws_iam_role_policy_attachment" "worker_tier_attach" {
+resource "aws_iam_role_policy_attachment" "attach_worker" {
   role       = aws_iam_role.example_app_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier"
 }
-
-resource "aws_iam_role_policy_attachment" "ecr_read_attach" {
+resource "aws_iam_role_policy_attachment" "example_app_ec2_role_policy_attachment" {
   role       = aws_iam_role.example_app_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
