@@ -42,7 +42,7 @@ resource "aws_elastic_beanstalk_application" "example_app" {
 }
 
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
-  name                = "ianb-task-listing-app-environment-v2"
+  name                = "ianb-task-listing-app-environment-v3"
   application         = aws_elastic_beanstalk_application.example_app.name
   solution_stack_name = "64bit Amazon Linux 2023 v4.13.2 running Docker"
   setting {
@@ -120,7 +120,22 @@ resource "aws_iam_role" "beanstalk_service_role" {
       }
     }]
   })
+  inline_policy {
+    name = "allow-beanstalk-platform-assets"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [{
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:ListBucket", "s3:GetBucketLocation"]
+        Resource = [
+          "arn:aws:s3:::elasticbeanstalk-platform-assets-eu-west-2",
+          "arn:aws:s3:::elasticbeanstalk-platform-assets-eu-west-2/*"
+        ]
+      }]
+    })
+  }
 }
+
 
 resource "aws_iam_role_policy_attachment" "beanstalk_enhanced_health" {
   role       = aws_iam_role.beanstalk_service_role.name
