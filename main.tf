@@ -44,7 +44,7 @@ resource "aws_s3_bucket" "docker_files" {
 resource "aws_db_instance" "rds_app" {
   allocated_storage    = 10
   engine               = "postgres"
-  engine_version       = "15.3"
+  engine_version       = "18"
   instance_class       = "db.t3.micro"
   identifier           = "ianb-example-app-prod"
   username             = "root"
