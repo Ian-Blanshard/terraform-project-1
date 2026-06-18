@@ -19,7 +19,7 @@ resource "aws_elastic_beanstalk_application" "example_app" {
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
   name        = "ianb-task-listing-app-environment-v7"
   application = aws_elastic_beanstalk_application.example_app.name
-  solution_stack_name = "64bit Amazon Linux 2023 v4.0.1 running Docker"
+  solution_stack_name = "64bit Amazon Linux 2023 v4.13.2 running Docker"
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "IamInstanceProfile"
@@ -31,6 +31,12 @@ resource "aws_elastic_beanstalk_environment" "example_app_environment" {
     name      = "EC2KeyName"
     value     = "ianb-terraform-ec2"
   }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:environment"
+    name      = "ServiceRole"
+    value     = aws_iam_role.beanstalk_service_role.name
+  }
 }
 
 
@@ -38,6 +44,8 @@ resource "aws_iam_instance_profile" "example_app_ec2_instance_profile" {
   name = "ianb-task-listing-app-ec2-instance-profile"
   role = aws_iam_role.example_app_ec2_role.name
 }
+
+#######################################
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -50,12 +58,38 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
+data "aws_iam_policy_document" "beanstalk_service_assume_role" {
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["elasticbeanstalk.amazonaws.com"]
+    }
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "beanstalk_service_role" {
+  name               = "ianb-beanstalk-service-role"
+  assume_role_policy = data.aws_iam_policy_document.beanstalk_service_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "beanstalk_service_enhanced" {
+  role       = aws_iam_role.beanstalk_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkManagedUpdatesCustomerRolePolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "beanstalk_service_enhanced_health" {
+  role       = aws_iam_role.beanstalk_service_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkEnhancedHealth"
+}
+
+#########################################################
+
 resource "aws_iam_role" "example_app_ec2_role" {
   name               = "ianb-task-listing-app-ec2-instance-role"
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
-
-
 
 resource "aws_iam_role_policy_attachment" "attach_web" {
   role       = aws_iam_role.example_app_ec2_role.name
