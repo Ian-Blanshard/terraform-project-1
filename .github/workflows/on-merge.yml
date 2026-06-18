@@ -1,5 +1,4 @@
 name: run terraform apply on merge
-run-name: ${{ github.head_ref }} merge by ${{ github.actor }}
 
 on:
   push:
@@ -26,7 +25,7 @@ jobs:
           role-to-assume: arn:aws:iam::664047078509:role/ianb-github-actions-role
           aws-region: eu-west-2
           audience: sts.amazonaws.com
-          
+
       - name: Terraform Init
         run: terraform init
 
