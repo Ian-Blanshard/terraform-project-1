@@ -6,6 +6,14 @@ resource "aws_elastic_beanstalk_application" "example_app" {
   name        = "ianb-task-listing-app"
   description = "Task listing app"
 }
+resource "aws_ecr_repository" "ianb-task-app-repo" {
+  name                 = "ianb-task-app-repo"
+  image_tag_mutability = "MUTABLE"
+
+  tags = {
+    Name = "ianb"
+  }
+}
 
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
   name                = "ianb-task-listing-app-environment-v7"
