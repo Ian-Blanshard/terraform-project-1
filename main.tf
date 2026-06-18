@@ -42,7 +42,7 @@ resource "aws_elastic_beanstalk_application" "example_app" {
 }
 
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
-  name                = "ianb-task-listing-app-environment"
+  name                = "ianb-task-listing-app-environment-v2"
   application         = aws_elastic_beanstalk_application.example_app.name
   solution_stack_name = "64bit Amazon Linux 2023 v4.13.2 running Docker"
   setting {
@@ -129,5 +129,5 @@ resource "aws_iam_role_policy_attachment" "beanstalk_enhanced_health" {
 
 resource "aws_iam_role_policy_attachment" "beanstalk_managed_service" {
   role       = aws_iam_role.beanstalk_service_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSElasticBeanstalkServiceRolePolicy"
+  policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkServiceRolePolicy"
 }
