@@ -18,7 +18,6 @@ resource "aws_elastic_beanstalk_application" "example_app" {
   }
 }
 
-
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
   name        = "ianb-task-listing-app-environment"
   application = aws_elastic_beanstalk_application.example_app.name
@@ -28,7 +27,6 @@ resource "aws_elastic_beanstalk_environment" "example_app_environment" {
     name      = "IamInstanceProfile"
     value     = aws_iam_instance_profile.example_app_ec2_instance_profile.name
   }
-
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "EC2KeyName"
@@ -36,6 +34,24 @@ resource "aws_elastic_beanstalk_environment" "example_app_environment" {
   }
 }
 
+resource "aws_s3_bucket" "docker_files" {
+  bucket = "ianb-task-app-docker-files"
+  tags = {
+    owner = "ianb"
+  }
+}
+
+resource "aws_db_instance" "rds_app" {
+  allocated_storage    = 10
+  engine               = "postgres"
+  engine_version       = "15.3"
+  instance_class       = "db.t3.micro"
+  identifier           = "ianb-example-app-prod"
+  username             = "root"
+  password             = "password"
+  skip_final_snapshot  = true
+  publicly_accessible = true
+}
 
 resource "aws_iam_instance_profile" "example_app_ec2_instance_profile" {
   name = "ianb-task-listing-app-ec2-instance-profile"
