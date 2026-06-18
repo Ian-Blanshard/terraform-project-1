@@ -42,7 +42,7 @@ resource "aws_elastic_beanstalk_application" "example_app" {
 }
 
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
-  name                = "ianb-task-listing-app-environment-v4"
+  name                = "ianb-task-listing-app-environment-v5"
   application         = aws_elastic_beanstalk_application.example_app.name
   solution_stack_name = "64bit Amazon Linux 2023 v4.13.2 running Docker"
   setting {
@@ -112,11 +112,6 @@ resource "aws_iam_role" "beanstalk_service_role" {
       Effect = "Allow"
       Principal = {
         Service = "elasticbeanstalk.amazonaws.com"
-      }
-      Condition = {
-        StringEquals = {
-          "sts:ExternalId" = "elasticbeanstalk"
-        }
       }
     }]
   })
