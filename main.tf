@@ -32,6 +32,27 @@ resource "aws_elastic_beanstalk_environment" "example_app_environment" {
     name      = "EC2KeyName"
     value     = "ianb-terraform-ec2"
   }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "DB_HOST"
+    value     = aws_db_instance.rds_app.address
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "POSTGRES_USER"
+    value     = aws_db_instance.rds_app.username
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "POSTGRES_PASSWORD"
+    value     = aws_db_instance.rds_app.password
+  }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "POSTGRES_DB"
+    value     = "postgres"
+  }
+
 }
 
 resource "aws_s3_bucket" "docker_files" {
@@ -52,6 +73,8 @@ resource "aws_db_instance" "rds_app" {
   skip_final_snapshot  = true
   publicly_accessible = true
 }
+
+
 
 resource "aws_iam_instance_profile" "example_app_ec2_instance_profile" {
   name = "ianb-task-listing-app-ec2-instance-profile"
