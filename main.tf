@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_ecr_repository" "ianb_task_app_repo" {
-  name                 = "ianb-task-app-repo"
+  name = "ianb-task-app-repo"
 
   tags = {
     onwer = "ianb"
@@ -19,8 +19,8 @@ resource "aws_elastic_beanstalk_application" "example_app" {
 }
 
 resource "aws_elastic_beanstalk_environment" "example_app_environment" {
-  name        = "ianb-task-listing-app-environment"
-  application = aws_elastic_beanstalk_application.example_app.name
+  name                = "ianb-task-listing-app-environment"
+  application         = aws_elastic_beanstalk_application.example_app.name
   solution_stack_name = "64bit Amazon Linux 2023 v4.13.2 running Docker"
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
@@ -63,18 +63,16 @@ resource "aws_s3_bucket" "docker_files" {
 }
 
 resource "aws_db_instance" "rds_app" {
-  allocated_storage    = 10
-  engine               = "postgres"
-  engine_version       = "18"
-  instance_class       = "db.t3.micro"
-  identifier           = "ianb-example-app-prod"
-  username             = "root"
-  password             = "password"
-  skip_final_snapshot  = true
+  allocated_storage   = 10
+  engine              = "postgres"
+  engine_version      = "18"
+  instance_class      = "db.t3.micro"
+  identifier          = "ianb-example-app-prod"
+  username            = "root"
+  password            = "password"
+  skip_final_snapshot = true
   publicly_accessible = true
 }
-
-
 
 resource "aws_iam_instance_profile" "example_app_ec2_instance_profile" {
   name = "ianb-task-listing-app-ec2-instance-profile"
@@ -83,6 +81,12 @@ resource "aws_iam_instance_profile" "example_app_ec2_instance_profile" {
     onwer = "ianb"
   }
 }
+
+resource "aws_iam_role" "example_app_ec2_role" {
+  name               = "ianb-task-listing-app-ec2-instance-role"
+  assume_role_policy = data.aws_iam_policy_document.assume_role.json
+}
+
 
 data "aws_iam_policy_document" "assume_role" {
   statement {
@@ -95,13 +99,7 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-resource "aws_iam_role" "example_app_ec2_role" {
-  name               = "ianb-task-listing-app-ec2-instance-role"
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
-
-
-
+# attach policies
 resource "aws_iam_role_policy_attachment" "attach_web" {
   role       = aws_iam_role.example_app_ec2_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
